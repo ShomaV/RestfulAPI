@@ -2,20 +2,18 @@
 using ExpenseTracker.Repository.Factories;
 using Marvin.JsonPatch;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Http;
 
 namespace ExpenseTracker.API.Controllers
 {
+    using System.Linq;
+
     [RoutePrefix("api")]
     public class ExpensesController : ApiController
     {
-
-        IExpenseTrackerRepository _repository;
-        ExpenseFactory _expenseFactory = new ExpenseFactory();
+        readonly IExpenseTrackerRepository _repository;
+        readonly ExpenseFactory _expenseFactory = new ExpenseFactory();
 
         public ExpensesController()
         {
@@ -26,9 +24,6 @@ namespace ExpenseTracker.API.Controllers
         {
             _repository = repository;
         }
-         
-
-     
 
         [Route("expenses/{id}")]
         public IHttpActionResult Delete(int id)
@@ -129,7 +124,7 @@ namespace ExpenseTracker.API.Controllers
                 // find 
                 if (expensePatchDocument == null)
                 {
-                    return BadRequest(); 
+                    return BadRequest();
                 }
 
                 var expense = _repository.GetExpense(id);
@@ -162,7 +157,59 @@ namespace ExpenseTracker.API.Controllers
             }
         }
 
+        //api/expensegroups/1/expenses
+        [Route("expensegroups/{expenseGroupId}/expenses")]
+        public IHttpActionResult Get(int expenseGroupId)
+        {
+            try
+            {
+                var expenses = _repository.GetExpenses(expenseGroupId);
+                if (expenses == null)
+                {
+                    return NotFound();
+                }
+                var expensesResult = expenses.ToList()
+                    .Select(exp => _expenseFactory.CreateExpense(exp));
+                return Ok(expensesResult);
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+        }
 
-         
+        [Route("expensegroups/{expenseGroupId}/expenses/{expenseId}")]
+        [Route("expenses/{expenseId}")]
+        public IHttpActionResult Get(int expenseId, int? expenseGroupId = null)
+        {
+            try
+            {
+                Repository.Entities.Expense expense = null;
+                if (expenseGroupId == null)
+                {
+                    expense = _repository.GetExpense(expenseId);
+                }
+                else
+                {
+                    var expnsesForGroup = _repository.GetExpenses(
+                        (int)expenseGroupId);
+                    if (expnsesForGroup != null)
+                    {
+                        expense = expnsesForGroup.FirstOrDefault(eg => eg.Id == expenseId);
+                    }
+                }
+                if (expense != null)
+                {
+                    var returnValue = _expenseFactory.CreateExpense(expense);
+                    return Ok(returnValue);
+                }
+                return NotFound();
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+        }
+
     }
 }

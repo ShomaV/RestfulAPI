@@ -3,6 +3,8 @@ using System.Web.Http;
 
 namespace ExpenseTracker.API
 {
+    using System.Net.Http.Headers;
+
     public static class WebApiConfig
     {
         public static HttpConfiguration Register()
@@ -17,6 +19,9 @@ namespace ExpenseTracker.API
                 defaults: new { id = RouteParameter.Optional });
 
             config.Formatters.XmlFormatter.SupportedMediaTypes.Clear();
+
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(
+                new MediaTypeHeaderValue("application/json-patch+json"));
 
 
             config.Formatters.JsonFormatter.SerializerSettings.Formatting

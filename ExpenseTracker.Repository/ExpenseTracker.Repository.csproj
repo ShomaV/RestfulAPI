@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -79,6 +79,11 @@
     <Compile Include="Factories\ExpenseMasterDataFactory.cs" />
     <Compile Include="Helpers\ListExtensions.cs" />
     <Compile Include="IExpenseTrackerEFRepository.cs" />
+    <Compile Include="Migrations\201609200818369_FirstDraft.cs" />
+    <Compile Include="Migrations\201609200818369_FirstDraft.Designer.cs">
+      <DependentUpon>201609200818369_FirstDraft.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepositoryActionResult.cs" />
     <Compile Include="RepositoryActionStatus.cs" />
@@ -108,6 +113,11 @@
       <Project>{c1fc50ad-2db6-42a1-8c22-93eb78c29116}</Project>
       <Name>ExpenseTracker.DTO</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201609200818369_FirstDraft.resx">
+      <DependentUpon>201609200818369_FirstDraft.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
