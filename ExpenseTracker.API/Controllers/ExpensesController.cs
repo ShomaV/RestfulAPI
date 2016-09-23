@@ -234,8 +234,8 @@ namespace ExpenseTracker.API.Controllers
             }
         }
 
-        [Route("expensegroups/{expenseGroupId}/expenses/{expenseId}")]
-        [Route("expenses/{expenseId}")]
+        [VersionedRoute("expensegroups/{expenseGroupId}/expenses/{expenseId}", 1)]
+        [VersionedRoute("expenses/{expenseId}", 1)]
         public IHttpActionResult Get(int expenseId, int? expenseGroupId = null)
         {
             try
@@ -267,5 +267,37 @@ namespace ExpenseTracker.API.Controllers
             }
         }
 
+        [VersionedRoute("expensegroups/{expenseGroupId}/expenses/{expenseId}", 2)]
+        [VersionedRoute("expenses/{expenseId}", 2)]
+        public IHttpActionResult GetV2(int expenseId, int? expenseGroupId = null)
+        {
+            try
+            {
+                Repository.Entities.Expense expense = null;
+                if (expenseGroupId == null)
+                {
+                    expense = _repository.GetExpense(expenseId);
+                }
+                else
+                {
+                    var expnsesForGroup = _repository.GetExpenses(
+                        (int)expenseGroupId);
+                    if (expnsesForGroup != null)
+                    {
+                        expense = expnsesForGroup.FirstOrDefault(eg => eg.Id == expenseId);
+                    }
+                }
+                if (expense != null)
+                {
+                    var returnValue = _expenseFactory.CreateExpense(expense);
+                    return Ok(returnValue);
+                }
+                return NotFound();
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+        }
     }
 }
