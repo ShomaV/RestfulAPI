@@ -8,6 +8,8 @@ namespace ExpenseTracker.API.Controllers
 {
     using Helpers;
     using Marvin.JsonPatch;
+    using Repository.Entities;
+    using System.Collections.Generic;
     using System.Net;
     using System.Web;
     using System.Web.Http.Routing;
@@ -31,10 +33,18 @@ namespace ExpenseTracker.API.Controllers
 
         [Route("api/expensegroups", Name = "ExpenseGroupsList")]
         public IHttpActionResult Get(string sort = "id", string status = null, string userId = null,
-            int page = 1, int pageSize = 5)
+            string fields = null, int page = 1, int pageSize = 5)
         {
             try
             {
+                bool includeExpenses = false;
+                var listOfFields = new List<string>();
+                if (fields != null)
+                {
+                    listOfFields = fields.ToLower().Split(',').ToList();
+                    includeExpenses = listOfFields.Any(f => f.Contains("expenses"));
+                }
+
                 int statusId = -1;
                 if (status != null)
                 {
@@ -52,8 +62,16 @@ namespace ExpenseTracker.API.Controllers
                     }
                 }
 
+                IQueryable<ExpenseGroup> expenseGroups = null;
+                if (includeExpenses)
+                    expenseGroups = _repository.GetExpenseGroupsWithExpenses();
+                else
+                {
+                    expenseGroups = _repository.GetExpenseGroups();
+                }
+
                 //get expensegroups from repository
-                var expenseGroups = _repository.GetExpenseGroups()
+                expenseGroups = expenseGroups
                     .ApplySort(sort)
                     .Where(eg => (statusId == -1) || eg.ExpenseGroupStatusId == statusId)
                     .Where(eg => (userId == null || eg.UserId == userId));
@@ -73,7 +91,8 @@ namespace ExpenseTracker.API.Controllers
                             pageSize = pageSize,
                             sort = sort,
                             status = status,
-                            userId = userId
+                            userId = userId,
+                            fields = fields
                         }) : "";
 
                 var nextLink = page < totalPages
@@ -84,7 +103,8 @@ namespace ExpenseTracker.API.Controllers
                             pageSize = pageSize,
                             sort = sort,
                             status = status,
-                            userId = userId
+                            userId = userId,
+                            fields = fields
                         }) : "";
 
                 var paginationHeader = new
@@ -103,11 +123,11 @@ namespace ExpenseTracker.API.Controllers
                 //return result
 
                 return Ok(expenseGroups
-                    .ApplySort(sort)
+                    //.ApplySort(sort)
                     .Skip(pageSize * (page - 1))
                     .Take(pageSize)
                     .ToList()
-                    .Select(eg => _expenseGroupFactory.CreateExpenseGroup(eg)));
+                    .Select(eg => _expenseGroupFactory.CreateDataShapedObject(eg, listOfFields)));
 
             }
             catch (Exception)

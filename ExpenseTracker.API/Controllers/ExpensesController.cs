@@ -7,13 +7,18 @@ using System.Web.Http;
 
 namespace ExpenseTracker.API.Controllers
 {
+    using Helpers;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Web;
+    using System.Web.Http.Routing;
 
     [RoutePrefix("api")]
     public class ExpensesController : ApiController
     {
         readonly IExpenseTrackerRepository _repository;
         readonly ExpenseFactory _expenseFactory = new ExpenseFactory();
+        private const int MaxPageSize = 2;
 
         public ExpensesController()
         {
@@ -159,18 +164,69 @@ namespace ExpenseTracker.API.Controllers
 
         //api/expensegroups/1/expenses
         [Route("expensegroups/{expenseGroupId}/expenses")]
-        public IHttpActionResult Get(int expenseGroupId)
+        public IHttpActionResult Get(int expenseGroupId, string sort = "date", string fields = null, int page = 1,
+            int pageSize = MaxPageSize)
         {
             try
             {
+                List<string> listOfFields = new List<string>();
+                if (fields != null)
+                    listOfFields = fields.ToLower().Split(',').ToList();
+
                 var expenses = _repository.GetExpenses(expenseGroupId);
                 if (expenses == null)
                 {
                     return NotFound();
                 }
-                var expensesResult = expenses.ToList()
-                    .Select(exp => _expenseFactory.CreateExpense(exp));
-                return Ok(expensesResult);
+
+                pageSize = pageSize > MaxPageSize ? MaxPageSize : pageSize;
+
+                //calculate data for metadata
+                var totalCount = expenses.Count();
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                var urlHelper = new UrlHelper(Request);
+                var prevlink = page > 1
+                    ? urlHelper.Link("ExpenseGroupsList",
+                        new
+                        {
+                            page = page - 1,
+                            pageSize = pageSize,
+                            sort = sort,
+                            fields = fields
+                        }) : "";
+
+                var nextLink = page < totalPages
+                    ? urlHelper.Link("ExpenseGroupsList",
+                        new
+                        {
+                            page = page + 1,
+                            pageSize = pageSize,
+                            sort = sort,
+                            fields = fields
+                        }) : "";
+
+                var paginationHeader = new
+                {
+                    currentPage = page,
+                    pageSize = pageSize,
+                    totalCount = totalCount,
+                    totalPages = totalPages,
+                    previousPageLink = prevlink,
+                    nextPageLink = nextLink
+                };
+
+                HttpContext.Current.Response.Headers.Add("X-Pagination",
+                    Newtonsoft.Json.JsonConvert.SerializeObject(paginationHeader));
+
+                //return result
+
+                return Ok(expenses
+                    .ApplySort(sort)
+                    .Skip(pageSize * (page - 1))
+                    .Take(pageSize)
+                    .ToList()
+                    .Select(eg => _expenseFactory.CreateDataShapedObject(eg, listOfFields)));
             }
             catch (Exception)
             {
