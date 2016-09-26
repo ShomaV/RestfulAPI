@@ -20,7 +20,7 @@ namespace ExpenseTracker.API.Controllers
     {
         readonly IExpenseTrackerRepository _repository;
         readonly ExpenseGroupFactory _expenseGroupFactory = new ExpenseGroupFactory();
-        const int maxPageSize = 2;
+        const int maxPageSize = 10;
 
         public ExpenseGroupsController()
         {

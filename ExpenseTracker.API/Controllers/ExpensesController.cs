@@ -73,7 +73,7 @@ namespace ExpenseTracker.API.Controllers
                 {
                     // map to dto
                     var newExp = _expenseFactory.CreateExpense(result.Entity);
-                    return Created<DTO.Expense>(Request.RequestUri + "/" + newExp.Id.ToString(), newExp);
+                    return Created(Request.RequestUri + "/" + newExp.Id.ToString(), newExp);
                 }
 
                 return BadRequest();
