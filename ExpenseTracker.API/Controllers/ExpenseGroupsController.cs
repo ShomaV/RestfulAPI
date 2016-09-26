@@ -12,8 +12,10 @@ namespace ExpenseTracker.API.Controllers
     using System.Collections.Generic;
     using System.Net;
     using System.Web;
+    using System.Web.Http.Cors;
     using System.Web.Http.Routing;
 
+    [EnableCors("*", "*", "GET,POST")]
     public class ExpenseGroupsController : ApiController
     {
         readonly IExpenseTrackerRepository _repository;
