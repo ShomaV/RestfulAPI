@@ -145,7 +145,7 @@ namespace ExpenseTracker.API.Controllers
                     return NotFound();
                 return Ok(_expenseGroupFactory.CreateExpenseGroup(expenseGroup));
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
                 return InternalServerError();

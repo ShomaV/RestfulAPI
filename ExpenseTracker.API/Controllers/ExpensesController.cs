@@ -240,7 +240,7 @@ namespace ExpenseTracker.API.Controllers
         {
             try
             {
-                Repository.Entities.Expense expense = null;
+               Repository.Entities.Expense expense = null;
                 if (expenseGroupId == null)
                 {
                     expense = _repository.GetExpense(expenseId);
