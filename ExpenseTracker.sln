@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.API", "Expen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Constants", "ExpenseTracker.Constants\ExpenseTracker.Constants.csproj", "{3FA80055-18B1-4E1D-8920-DDCAADD06B20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.WebClient", "..\..\..\6-exercise-files\1_get\start\ExpenseTracker.WebClient\ExpenseTracker.WebClient.csproj", "{1602ADAC-0AFB-4100-BB69-E159E967F6C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.WebClient", "ExpenseTracker.WebClient\ExpenseTracker.WebClient.csproj", "{1602ADAC-0AFB-4100-BB69-E159E967F6C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
