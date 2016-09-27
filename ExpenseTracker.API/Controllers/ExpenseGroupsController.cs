@@ -25,7 +25,7 @@ namespace ExpenseTracker.API.Controllers
         public ExpenseGroupsController()
         {
             _repository = new ExpenseTrackerEFRepository(new
-                Repository.Entities.ExpenseTrackerContext());
+                ExpenseTrackerContext());
         }
 
         public ExpenseGroupsController(IExpenseTrackerRepository repository)
